@@ -66,8 +66,8 @@ class Quantity:
         return self.name
 
 
-class Transformer(lark.Transformer):
-    """ Transformer that transforms ``v0.10.1`` grammer parse trees into queries.
+class ElasticTransformer(lark.Transformer):
+    """ Transformer that transforms ``v0.10.1`` grammar parse trees into queries.
 
     Uses elasticsearch_dsl and will produce a `Q` instance.
     """
