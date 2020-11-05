@@ -1,6 +1,4 @@
-<div align='center'>
 <img width=100 src="images/optimade_logo_180x180.svg" />
-</div>
 
 # OPTIMADE Python tools
 
