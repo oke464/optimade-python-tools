@@ -73,7 +73,7 @@ if not CONFIG.use_real_mongo:
             LOGGER.debug(
                 "  Adding Materials-Consortia providers to links from optimade.org"
             )
-            providers = get_providers()
+            providers = get_providers(add_mongo_id=True)
             for doc in providers:
                 endpoint_collection.collection.replace_one(
                     filter={"_id": ObjectId(doc["_id"]["$oid"])},
