@@ -68,11 +68,6 @@ _INCLUSIVE_OPERATORS = {
         "=",
         "<=",
         ">=",
-        "CONTAINS",
-        "STARTS WITH",
-        "STARTS",
-        "ENDS WITH",
-        "ENDS",
     ),
     DataType.INTEGER: (
         "=",
