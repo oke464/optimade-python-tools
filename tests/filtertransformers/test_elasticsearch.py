@@ -6,16 +6,15 @@ elasticsearch_dsl = pytest.importorskip(
     "elasticsearch_dsl", reason="No ElasticSearch installation, skipping tests..."
 )
 
-from optimade.filtertransformers.elasticsearch import ElasticTransformer, Quantity
-
 
 class TestTransformer:
     @pytest.fixture(autouse=True)
     def set_up(self):
-        from optimade.filtertransformers.elasticsearch import Transformer, Quantity
+        from optimade.filtertransformers.elasticsearch import (
+            ElasticTransformer,
+            Quantity,
+        )
 
-class TestTransformer(unittest.TestCase):
-    def setUp(self):
         self.parser = LarkParser(version=(0, 10, 1))
 
         nelements = Quantity(name="nelements")
