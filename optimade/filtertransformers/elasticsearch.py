@@ -118,50 +118,54 @@ class ElasticTransformer(BaseTransformer):
 
     def _has_query_op(self, quantities, op, predicate_zip_list):
         """
-        Returns a bool query that combines the operator queries ():func:`_query_op`)
-        for each predicate and zipped quantity pericates combinations.
+        Returns a bool query that combines the operator queries `_query_op`
+        for each predicate and zipped quantity predicates combinations.
         """
-        if op == "HAS":
+        if op in ("HAS", "HAS ALL"):
             kind = "must"  # in case of HAS we do a must over the "list" of the one given element
-        elif op == "HAS ALL":
-            kind = "must"
         elif op == "HAS ANY":
             kind = "should"
         elif op == "HAS ONLY":
             # HAS ONLY comes with heavy limitations, because there is no such thing
             # in elastic search. Only supported for elements, where we can construct
             # an anonymous "formula" based on elements sorted by order number and
-            # can do a = comparision to check if all elements are contained
+            # can do a = comparison to check if all elements are contained
             if len(quantities) > 1:
-                raise Exception("HAS ONLY is not supported with zip")
+                raise NotImplementedError("HAS ONLY is not supported with zip")
             quantity = quantities[0]
 
             if quantity.has_only_quantity is None:
-                raise Exception("HAS ONLY is not supported by %s" % quantity.name)
+                raise NotImplementedError(
+                    "HAS ONLY is not supported by %s" % quantity.name
+                )
 
             def values():
                 for predicates in predicate_zip_list:
                     if len(predicates) != 1:
-                        raise Exception("Tuples not supported in HAS ONLY")
+                        raise NotImplementedError("Tuples not supported in HAS ONLY")
                     op, value = predicates[0]
                     if op != "=":
-                        raise Exception("Predicated not supported in HAS ONLY")
+                        raise NotImplementedError(
+                            "Predicated not supported in HAS ONLY"
+                        )
                     if not isinstance(value, str):
-                        raise Exception("Only strings supported in HAS ONLY")
+                        raise NotImplementedError("Only strings supported in HAS ONLY")
                     yield value
 
             try:
-                order_numbers = list([ATOMIC_NUMBERS[element] for element in values()])
-                order_numbers.sort()
+                order_numbers = sorted(ATOMIC_NUMBERS[element] for element in values())
                 value = "".join(
                     [CHEMICAL_SYMBOLS[number - 1] for number in order_numbers]
                 )
             except KeyError:
-                raise Exception("HAS ONLY is only supported for chemical symbols")
+                raise NotImplementedError(
+                    "HAS ONLY is only supported for chemical symbols"
+                )
 
             return Q("term", **{quantity.has_only_quantity.name: value})
+
         else:
-            raise NotImplementedError
+            raise NotImplementedError(f"Unknown operator {op!r}")
 
         queries = [
             self._has_query(quantities, predicates) for predicates in predicate_zip_list
@@ -170,32 +174,32 @@ class ElasticTransformer(BaseTransformer):
 
     def _has_query(self, quantities, predicates):
         """
-        Returns a bool query that combines the operator queries ():func:`_query_op`)
-        for quantity pericate combination.
+        Returns a bool query that combines the operator queries `_query_op`
+        for quantity predicate combination.
         """
         if len(quantities) != len(predicates):
-            raise Exception(
+            raise ValueError(
                 "Tuple length does not match: %s <o> %s "
                 % (":".join(quantities), ":".join(predicates))
             )
 
         if len(quantities) == 1:
-            o, value = predicates[0]
-            return self._query_op(quantities[0], o, value)
+            op, value = predicates[0]
+            return self._query_op(quantities[0], op, value)
 
         nested_quantity = quantities[0].nested_quantity
         same_nested_quantity = any(
             q.nested_quantity != nested_quantity for q in quantities
         )
         if nested_quantity is None or same_nested_quantity:
-            raise Exception(
+            raise TypeError(
                 "Expression with tuples are only supported for %s"
                 % ", ".join(quantities)
             )
 
         queries = [
-            self._query_op(quantity, o, value, nested=nested_quantity)
-            for quantity, (o, value) in zip(quantities, predicates)
+            self._query_op(quantity, op, value, nested=nested_quantity)
+            for quantity, (op, value) in zip(quantities, predicates)
         ]
 
         return Q(
@@ -243,7 +247,7 @@ class ElasticTransformer(BaseTransformer):
     def constant_first_comparison(self, value, op, quantity):
         # constant_first_comparison: constant OPERATOR ( non_string_value | ...not_implemented_string )
         if not isinstance(quantity, Quantity):
-            raise Exception("Only quantities can be compared to constant values.")
+            raise TypeError("Only quantities can be compared to constant values.")
 
         return self._query_op(quantity, _rev_cmp_operators[op], value)
 
@@ -262,7 +266,9 @@ class ElasticTransformer(BaseTransformer):
 
         def query(quantity):
             if quantity.length_quantity is None:
-                raise Exception("LENGTH is not supported for %s" % quantity.name)
+                raise NotImplementedError(
+                    "LENGTH is not supported for %s" % quantity.name
+                )
             quantity = quantity.length_quantity
             return self._query_op(quantity, op, value)
 
@@ -278,7 +284,7 @@ class ElasticTransformer(BaseTransformer):
                 return query
             elif value == "UNKNOWN":
                 return ~query  # pylint: disable=invalid-unary-operand-type
-            raise NotImplementedError
+            raise NotImplementedError(f"Unknown operator value {value!r}")
 
         return query
 
@@ -342,12 +348,14 @@ class ElasticTransformer(BaseTransformer):
     def fuzzy_string_op_rhs(self, args):
         op = args[0]
         value = args[-1]
-        if op == "CONTAINS":
-            wildcard = "*%s*" % value
-        if op == "STARTS":
-            wildcard = "%s*" % value
-        if op == "ENDS":
-            wildcard = "*%s" % value
+        wildcard = f"{value}"
+        if op not in ("CONTAINS", "STARTS", "ENDS"):
+            raise NotImplementedError("Unknown operator {op!r}")
+
+        if op in ("CONTAINS", "STARTS"):
+            wildcard = f"{wildcard}*"
+        if op in ("CONTAINS", "ENDS"):
+            wildcard = f"*{wildcard}"
 
         return lambda quantity: Q("wildcard", **{self._field(quantity): wildcard})
 
