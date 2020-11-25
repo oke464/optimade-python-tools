@@ -5,6 +5,11 @@ from lark import v_args
 from elasticsearch_dsl import Q, Text, Keyword, Integer, Field
 from optimade.models import CHEMICAL_SYMBOLS, ATOMIC_NUMBERS
 
+__all__ = (
+    "ElasticTransformer",
+    "Transformer",
+)
+
 
 _cmp_operators = {">": "gt", ">=": "gte", "<": "lt", "<=": "lte"}
 _rev_cmp_operators = {">": "<", ">=": "<=", "<": ">", "<=": "=>"}
@@ -67,7 +72,7 @@ class Quantity:
 
 
 class ElasticTransformer(lark.Transformer):
-    """ Transformer that transforms ``v0.10.1`` grammar parse trees into queries.
+    """Transformer that transforms ``v0.10.1`` grammar parse trees into queries.
 
     Uses elasticsearch_dsl and will produce a `Q` instance.
     """
@@ -324,7 +329,12 @@ class ElasticTransformer(lark.Transformer):
             if arg in ["<", "<=", ">", ">=", "!=", "="]:
                 op = arg
             else:
-                result.append((op, arg,))
+                result.append(
+                    (
+                        op,
+                        arg,
+                    )
+                )
                 op = "="
         return result
 
@@ -371,3 +381,7 @@ class ElasticTransformer(lark.Transformer):
         elif number.type == "SIGNED_FLOAT":
             type_ = float
         return type_(number)
+
+
+# added for potential backward compatibility
+Transformer = ElasticTransformer
