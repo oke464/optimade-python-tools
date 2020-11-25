@@ -3,7 +3,7 @@ from typing import List
 from lark import v_args
 from elasticsearch_dsl import Q, Text, Keyword, Integer, Field
 from optimade.models import CHEMICAL_SYMBOLS, ATOMIC_NUMBERS
-from optimade.filtertransformers import BaseTransformer
+from optimade.filtertransformers.base_transformer import BaseTransformer
 
 __all__ = (
     "ElasticTransformer",
