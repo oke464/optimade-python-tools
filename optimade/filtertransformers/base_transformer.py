@@ -38,6 +38,7 @@ class BaseTransformer(abc.ABC, Transformer):
         the backend.
 
         """
+        return query
 
     def transform(self, tree):
         """ Transform the query using the Lark transformer then post-process. """
