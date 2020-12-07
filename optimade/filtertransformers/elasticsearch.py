@@ -10,6 +10,11 @@ __all__ = (
     "Transformer",
 )
 
+__all__ = (
+    "ElasticTransformer",
+    "Transformer",
+)
+
 
 _cmp_operators = {">": "gt", ">=": "gte", "<": "lt", "<=": "lte"}
 _rev_cmp_operators = {">": "<", ">=": "<=", "<": ">", "<=": "=>"}
@@ -72,7 +77,7 @@ class Quantity:
 
 
 class ElasticTransformer(BaseTransformer):
-    """Transformer that transforms ``v0.10.1`` grammar parse trees into queries.
+    """Transformer that transforms ``v1.0.0`` grammar parse trees into queries.
 
     Uses elasticsearch_dsl and will produce a `Q` instance.
     """
