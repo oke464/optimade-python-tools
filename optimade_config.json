@@ -3,29 +3,33 @@
     "default_db": "test_server",
     "base_url": "http://localhost:5000",
     "implementation": {
-        "name": "Example implementation",
-        "source_url": "https://github.com/Materials-Consortia/optimade-python-tools",
-        "maintainer": {"email": "dev@optimade.org"}
+        "name": "Group1",
+        "source_url": "https://github.com/matot830/CDIO---Grupp-1",
+        "maintainer": {"email": "tfya92.grupp1@gmail.com"}
     },
     "provider": {
-        "name": "Example provider",
-        "description": "Provider used for examples, not to be assigned to a real database",
-        "prefix": "exmpl",
-        "homepage": "https://example.com"
+        "name": "Group 1",
+        "description": "Part of a CDIO project at the University of Linkoping",
+        "prefix": "group1",
+        "homepage": "https://github.com/matot830/CDIO---Grupp-1"
     },
     "index_base_url": "http://localhost:5001",
     "provider_fields": {
         "structures": [
-            "band_gap",
-            "chemsys"
+            "mean_square_displacement",
+            "self_diffusion",
+            "lindemann",
+            "specific_heat",
+            "internal_temperature",
+            "cohesive_energy",
+            "internal_pressure",
+            "bulk_modulus"
         ]
     },
     "aliases": {
         "structures": {
             "id": "task_id",
             "immutable_id": "_id",
-            "chemical_formula_descriptive": "pretty_formula",
-            "chemical_formula_reduced": "pretty_formula",
             "chemical_formula_anonymous": "formula_anonymous"
         }
     },
