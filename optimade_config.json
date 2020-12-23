@@ -23,7 +23,8 @@
             "internal_temperature",
             "cohesive_energy",
             "internal_pressure",
-            "bulk_modulus"
+            "bulk_modulus",
+            "lattice_constant_a"
         ]
     },
     "aliases": {
